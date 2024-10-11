@@ -3,8 +3,11 @@ const ejs = require('ejs')
 const expressLayout = require('express-ejs-layouts')
 const path = require('path')
 const app = express()
+const env = require('dotenv')
+env.config();
 const port = 3000
-// const web = require('')
+require('./connection')
+
 app.use(expressLayout);
 app.set('views',path.join(__dirname, '/resources/views'));
 
