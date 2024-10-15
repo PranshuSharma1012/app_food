@@ -2,10 +2,12 @@ const mongoose = require('mongoose')
 
 const url = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ff9qa.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority&appName=Cluster0`
 
+// console.log(process.env.PORT)
+
 const connectionParams={
-    useNewUrlParser: true,
+    // useNewUrlParser: true,
     // useCreateIndex: true,
-    useUnifiedTopology: true 
+    // useUnifiedTopology: true 
 }
 
 mongoose.connect(url,connectionParams)
