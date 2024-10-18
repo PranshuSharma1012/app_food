@@ -49,7 +49,7 @@ let authController = () => {
             })
 
         },
-        postLogin(req , res){
+        postLogin(req , res , next){
             let {email , password} = req.body
 
             if (!email || !password) {
@@ -62,22 +62,22 @@ let authController = () => {
 
             
             passport.authenticate('local', (error , user , info)=>{
-                console.log('inside authenticate');
+                // console.log('inside authenticate');
 
                 if(error){
-                    console.log(info.message);
+                    // console.log(info.message);
                     
                     req.flash('error' , info.message)
                     return next(error)
                 }
                 if(!user){
-                    console.log(info.message);
+                    // console.log(info.message);
 
                     req.flash('error' , info.message)
                     return res.redirect('/login')
                 }
                 req.logIn(user , (error) => {
-                    console.log(info.message);
+                    // console.log(info.message);
 
                     if(error){
                         req.flash('error' , info.message)
@@ -86,8 +86,14 @@ let authController = () => {
                     return res.redirect('/')
                     // return res.redirect(_getRedirectUrl(req))
                 })
-            })
+            })(req , res , next)
 
+        },
+        logout(req , res , next){
+            req.logout(function(err) {
+                if (err) { return next(err); }
+                res.redirect('/login');
+            });
         }
     }
 }

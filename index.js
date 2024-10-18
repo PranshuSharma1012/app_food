@@ -12,6 +12,7 @@ env.config();
 require('./connection')
 const port = 3000
 
+app.use('/jquery/js', express.static(path.join(__dirname, 'node_modules/jquery/dist')))
 
 // templating
 app.use(expressLayout);

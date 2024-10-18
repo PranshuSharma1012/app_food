@@ -6,8 +6,10 @@ function init(passport){
     
     passport.use(
         new LocalStrategy({usernameField:'email'} , async (email , password , done) => {
-            const user = User.findOne({email:email})
-            console.log(email);
+            const user = await User.findOne({email:email})
+            // console.log(email);
+            // console.log(password);
+            // console.log(user);
 
             if(!user){
                 return done(null ,false ,{message:'No user with this E-mail.'})
@@ -28,10 +30,9 @@ function init(passport){
         done(null , user._id)
     })
 
-    passport.deserializeUser((id , done) => {
-        User.findById(id , (error , user)=>{
-            done(error , user)
-        })
+    passport.deserializeUser( async (id , done) => {
+        let user = await User.findById(id)
+        done(null , user)
     })
 }
 
