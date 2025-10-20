@@ -2,6 +2,8 @@ const User = require('../../models/user')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 
+const jwt = require('jsonwebtoken')
+
 
 let authController = () => {
 
@@ -17,6 +19,7 @@ let authController = () => {
             res.render('auth/register');
         },
         async postRegister(req , res){
+            
             let {name , email , password} = req.body
 
             if (!name || !email || !password ) {
@@ -48,51 +51,130 @@ let authController = () => {
                 req.flash('error', 'Failed To Save User :(')
             })
 
+            
+
         },
         postLogin(req , res , next){
-            let {email , password} = req.body
 
-            if (!email || !password) {
-                req.flash('error' , "All felids are required")
-                req.flash('email' , email)
-                return res.redirect('/login')
-            }
-            console.log('at line 59');
-            // console.log(passport);
+            // console.log(req);
 
-            
-            passport.authenticate('local', (error , user , info)=>{
-                // console.log('inside authenticate');
+            if(req.body.mode){
 
-                if(error){
-                    // console.log(info.message);
-                    
-                    req.flash('error' , info.message)
-                    return next(error)
+                let {email , password} = req.body
+    
+                if (!email || !password) {
+                    req.flash('error' , "All felids are required")
+                    req.flash('email' , email)
+                    return res.status(401).json({
+                        "is_success":"false",
+                        "message":"username or password is missing"
+                    })
                 }
-                if(!user){
-                    // console.log(info.message);
+                   
+                
+                passport.authenticate('local', {keepSessionInfo: true} , (error , user , info)=>{
+                    // console.log('inside authenticate');
+    
+                    if(error){
+                        // console.log(info.message);
+                        
+                        req.flash('error' , info.message)
 
-                    req.flash('error' , info.message)
+                        return res.status(401).json({
+                        "is_success":"false",
+                        "message":"something went wrong"
+                        })
+                    }
+                    if(!user){
+                        // console.log(info.message);
+    
+                        req.flash('error' , info.message)
+
+                        return res.status(401).json({
+                            "is_success":"false",
+                            "message":"user not exists"
+                        })
+
+                    }
+    
+                    let cart = req.session.cart || false;
+                    req.logIn(user , (error) => {
+    
+                        if(error){
+                            req.flash('error' , info.message)
+                            return res.status(401).json({
+                                "is_success":"false",
+                                "message":"something went wrong"
+                            })
+                        }
+                        req.session.cart = cart;
+
+                        const token = jwt.sign({userId:user._id} , process.env.JWT_SECRET_KEY , {expiresIn:"1h"})
+
+                        // console.log(`token ${token} `);
+                        // console.log(`user ${user} `);
+                        
+
+                        return res.status(401).json({
+                            "is_success":"true",
+                            "message":"Login successful",
+                            "token":token
+                        })
+                        // return res.redirect(_getRedirectUrl(req))
+                    })
+                })(req , res , next)
+
+            }
+            else{
+
+                let {email , password} = req.body
+    
+                if (!email || !password) {
+                    req.flash('error' , "All felids are required")
+                    req.flash('email' , email)
                     return res.redirect('/login')
                 }
-                req.logIn(user , (error) => {
-                    // console.log(info.message);
-
+                
+                // console.log(passport);
+    
+                
+                passport.authenticate('local', {keepSessionInfo: true} , (error , user , info)=>{
+                    // console.log('inside authenticate');
+    
                     if(error){
+                        // console.log(info.message);
+                        
                         req.flash('error' , info.message)
                         return next(error)
                     }
-                    return res.redirect('/')
-                    // return res.redirect(_getRedirectUrl(req))
-                })
-            })(req , res , next)
+                    if(!user){
+                        // console.log(info.message);
+    
+                        req.flash('error' , info.message)
+                        return res.redirect('/login')
+                    }
+    
+                    let cart = req.session.cart || false;
+                    req.logIn(user , (error) => {
+    
+                        if(error){
+                            req.flash('error' , info.message)
+                            return next(error)
+                        }
+                        req.session.cart = cart;
+                        return res.redirect('/')
+                        // return res.redirect(_getRedirectUrl(req))
+                    })
+                })(req , res , next)
+            }
 
         },
         logout(req , res , next){
             req.logout(function(err) {
-                if (err) { return next(err); }
-                res.redirect('/login');
+                if (err) { 
+                    return next(err); 
+                }
+                return res.redirect('/login'); 
             });
         }
     }

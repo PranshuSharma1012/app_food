@@ -6,6 +6,12 @@ let cartController = () => {
             res.render('customers/cart');
         },
         update(req , res){
+
+            // console.log('request:-');
+            
+            // console.log(req.body);
+            
+
             // first time creating cart
             if(!req.session.cart){
                 req.session.cart = {
@@ -17,10 +23,13 @@ let cartController = () => {
 
             let cart = req.session.cart;
 
+            // console.log(cart);
+
             if(!cart.items[req.body._id]){
                 cart.items[req.body._id] = {
                     item:req.body,
-                    qty:1
+                    qty:1,
+                    currency: "USD",
                 },
                 cart.totalQuantity = cart.totalQuantity + 1,
                 cart.totalPrice=cart.totalPrice + req.body.price
@@ -30,6 +39,7 @@ let cartController = () => {
                 cart.totalQuantity = cart.totalQuantity + 1
                 cart.totalPrice = cart.totalPrice + req.body.price
             }
+        
 
             return res.json({
                 totalQuantity:req.session.cart.totalQuantity
@@ -50,3 +60,4 @@ module.exports = cartController
 // }
 
 // a['pankaj']
+

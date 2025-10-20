@@ -17,6 +17,12 @@ const menuSchema = new Schema({
     size:{
         type:String,
         require:true
+    },
+    stock:{
+        type:Number,
+        require:true,
+        min:[0, 'Out Of stock']
+        // set minimum value = out of stock 
     }
 }, {timestamps:true});
 

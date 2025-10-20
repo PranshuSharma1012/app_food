@@ -14,6 +14,14 @@ const orderSchema = new Schema({
     paymentType: { type: String, default: 'COD'},
     paymentStatus: { type: Boolean, default: false },
     status: { type: String, default: 'order_placed'},
+    paymentId:{
+        type:String,
+        default:false
+    },
+    payerId:{
+        type:String,
+        default:false
+    }
     
     
 }, {timestamps:true});

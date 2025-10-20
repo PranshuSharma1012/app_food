@@ -1,11 +1,37 @@
 import axios from 'axios'
 import Noty from 'noty' 
+import {initAdmin} from './admin'
 
 let addToCart = $('.add-to-cart');
 let cartCounter = $('#cartCounter')
 
-$(document).ready(function () {
+let socket = io()
 
+$(document).ready(function () {
+    
+    initAdmin(socket);
+
+    socket.on('stockUpdated' , (data) => {
+
+        for(let key of Object.keys(data.items)){
+            console.log(data.items[key].item)
+                                
+            $('.menu-'+key).html(data.items[key].item.stock);
+        }                
+    })
+
+    socket.on('apiOrder' , (data) => {
+        console.log(data);     
+        
+        new Noty({
+            type: 'success',
+            timeout: 1000,
+            text: 'New Order recived from ' + data.user.name,
+            progressBar: false,
+        }).show(); 
+
+    });
+    
     $('.logout-btn').click(function (e){
         e.preventDefault();
         $('#logout-form').submit();
@@ -19,7 +45,6 @@ $(document).ready(function () {
         // console.log(JSON.parse(pizza));
 
         updateCart(pizza);
-
 
     })
 
@@ -47,5 +72,24 @@ $(document).ready(function () {
             console.log(error);            
         });
     }
+
+    $('a.page-scroll').bind('click', function(event) {
+        var $anchor = $(this);
+        $('html, body').stop().animate({
+          scrollTop: $($anchor.attr('href')).offset().top,
+        }, 500, 'linear');
+        event.preventDefault();
+      });
+      
+      var mn = $(".main-nav")
+      
+      $(window).scroll(function() {
+        if( $(this).scrollTop() > 250 ) {
+          mn.addClass("main-nav-scrolled");
+        }
+          else {
+            mn.removeClass("main-nav-scrolled");
+        }
+      });
 
 });
